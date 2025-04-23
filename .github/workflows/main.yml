@@ -26,8 +26,8 @@ jobs:
       env:
         KERNEL_ROOT_DIR: ${{ github.workspace }}
       run: |
-        chmod +x ./build-nabu.sh
-        ./build-nabu.sh
+        chmod +x ./build_nabu.sh
+        ./build_nabu.sh
 
     # Step 4: Upload file using bashupload
     - name: Upload Kernel ZIP to bashupload
