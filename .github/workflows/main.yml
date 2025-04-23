@@ -1,0 +1,33 @@
+name: Build Android Kernel
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout mã nguồn kernel
+    - name: Checkout Kernel Source
+      uses: actions/checkout@v4
+
+    # Cài đặt dependencies cần thiết
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential bc bison flex libncurses-dev git curl zip clang gcc wget python3
+  
+    # Chạy build script
+    - name: Run build script
+      working-directory: ${{ github.workspace }}
+      run: |
+        chmod +x build.sh
+        ./build.sh
+
+    # Upload file zip kernel do build.sh tạo ra
+    - name: Upload kernel zip artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: kernel-zip
+        path: anykernel/*.zip
