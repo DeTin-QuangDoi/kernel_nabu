@@ -872,13 +872,7 @@ build_zip() {
 }
 
 upload_zip() {
-	curl bashupload.com -T "$(ls -1 "$KERNEL_ROOT_DIR"/out/*.zip)"
-	str=$(
-		for f in $(ls -1 "$KERNEL_ROOT_DIR"/out/*.zip); do
-			echo "-F f[]=@${f}"
-		done
-	)
-	curl -i "$str" https://oshi.at
+  echo "Files are ready in $KERNEL_ROOT_DIR/out/. Use GitHub Actions to upload artifacts."
 }
 
 case "${1}" in
