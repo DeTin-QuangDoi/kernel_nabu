@@ -1,33 +1,60 @@
-name: Build Android Kernel
+name: Kernel Build
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Cho phép chạy workflow thủ công
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # Checkout mã nguồn kernel
-    - name: Checkout Kernel Source
+    # Step 1: Checkout repository code
+    - name: Checkout Repository
       uses: actions/checkout@v4
 
-    # Cài đặt dependencies cần thiết
-    - name: Install Dependencies
+    # Step 2: Setup environment
+    - name: Setup Build Environment
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential bc bison flex libncurses-dev git curl zip clang gcc wget python3
-  
-    # Chạy build script
-    - name: Run build script
-      working-directory: ${{ github.workspace }}
-      run: |
-        chmod +x build_nabu.sh
-        ./build_nabu.sh
+        sudo apt-get install -y build-essential libssl-dev bc curl unzip python3 wget
 
-    # Upload file zip kernel do build.sh tạo ra
-    - name: Upload kernel zip artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: kernel-zip
-        path: $KERNEL_ROOT_DIR"/out/*.zip
+    # Step 3: Run the build script
+    - name: Run Kernel Build Script
+      env:
+        KERNEL_ROOT_DIR: ${{ github.workspace }}
+      run: |
+        chmod +x ./build-nabu.sh
+        ./build-nabu.sh
+
+    # Step 4: Upload file using bashupload
+    - name: Upload Kernel ZIP to bashupload
+      if: always() # Chạy bước này ngay cả khi build thất bại
+      env:
+        KERNEL_ROOT_DIR: ${{ github.workspace }}
+      run: |
+        if ls -1 "$KERNEL_ROOT_DIR/out/"*.zip 1> /dev/null 2>&1; then
+          for f in "$KERNEL_ROOT_DIR/out/"*.zip; do
+            echo "Uploading $f to bashupload.com..."
+            curl -T "$f" https://bashupload.com
+          done
+        else
+          echo "No ZIP files found in $KERNEL_ROOT_DIR/out/. Skipping upload."
+        fi
+
+    # Step 5: Upload file using oshi.at (optional)
+    - name: Upload Kernel ZIP to oshi.at
+      if: always() # Chạy bước này ngay cả khi build thất bại
+      env:
+        KERNEL_ROOT_DIR: ${{ github.workspace }}
+      run: |
+        if ls -1 "$KERNEL_ROOT_DIR/out/"*.zip 1> /dev/null 2>&1; then
+          for f in "$KERNEL_ROOT_DIR/out/"*.zip; do
+            echo "Uploading $f to oshi.at..."
+            curl -F "f[]=@$f" https://oshi.at
+          done
+        else
+          echo "No ZIP files found in $KERNEL_ROOT_DIR/out/. Skipping upload."
+        fi
