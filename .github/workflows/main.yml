@@ -22,8 +22,8 @@ jobs:
     - name: Run build script
       working-directory: ${{ github.workspace }}
       run: |
-        chmod +x build.sh
-        ./build.sh
+        chmod +x build_nabu.sh
+        ./build_nabu.sh
 
     # Upload file zip kernel do build.sh tạo ra
     - name: Upload kernel zip artifact
