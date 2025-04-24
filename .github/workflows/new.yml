@@ -1,0 +1,39 @@
+name: Kernel Build
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Cho phép chạy workflow thủ công
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout repository code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    # Step 2: Setup environment
+    - name: Setup Build Environment
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libssl-dev bc curl unzip python3 wget
+
+    # Step 3: Run the build script
+    - name: Run Kernel Build Script
+      env:
+        KERNEL_ROOT_DIR: ${{ github.workspace }}
+      run: |
+        chmod +x ./newbuild.sh
+        ./newbuild.sh
+        
+    - name: Upload kernel zip 
+      uses: actions/upload-artifact@v4
+
+      with:
+
+       name: kernel-zip
+
+       path: out/*.zip
